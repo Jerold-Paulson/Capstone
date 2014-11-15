@@ -1,0 +1,84 @@
+---
+title: "Capstone Phase 1"
+author: "Jerold Paulson"
+date: "Thursday, November 13, 2014"
+output: html_document
+---
+Executive Summary:  
+------------------
+- The data sets for predicting the intended next word, given a preceding string of text, are read in, and the code for doing so is shown.
+
+- The highlights seen in the data are illustrated via some charts and tables.
+
+- The next steps to be taken are described.
+
+
+```{r, cache=TRUE, warning = FALSE, message=FALSE, echo=TRUE}
+library(tm)
+library(NLP)
+setwd("c:/users/Administrator/Documents/R files/Capstone")
+rawdata1 <- readLines("en_US.blogs.txt")
+rawdata2 <- readLines("en_US.twitter.txt")
+rawdata3 <- readLines("en_US.news.txt")
+
+```
+##Data Description
+The text we have available to analyze comes from three different sources.  Some comes from internet blogs, some from a collection of twitter tweets, and some from news reports.  
+##Data Highlights
+Since each line in each of the raw text documents represents a different original document, we can sum up the lines in each to obtain the total number of documents that are being used.  Hence, there are
+```{r, cache=TRUE, warning = FALSE, message=FALSE, echo=FALSE}
+print(length(rawdata1)+length(rawdata2)+length(rawdata3))
+```
+total original documents ('line count')
+
+This is broken down as follows:
+```{r, results='asis', cache=TRUE, warning = FALSE, message=FALSE, echo=FALSE}
+library(xtable)
+tableData <- c(length(rawdata1),length(rawdata2),length(rawdata3))
+tableLabels <- c("Blogs","Twitter","News")
+df <- data.frame(tableLabels, tableData)
+print(xtable(df),type="HTML")
+```
+Let us now look at some further details on each of the files:
+
+```{r, cache=FALSE, warning = FALSE, message=FALSE, echo=FALSE}
+library(stringi)
+library(ggplot2)
+
+details1 <- stri_count_words(rawdata1)
+details2 <- stri_count_words(rawdata2)
+details3 <- stri_count_words(rawdata3)
+
+wordTotal1 <- sum(details1)
+wordTotal2 <- sum(details2)
+wordTotal3 <- sum(details3)
+```
+
+Here are the statistics and a histogram for the character and word counts per Blogs document:
+```{r, cache=FALSE, warning = FALSE, message=FALSE, echo=FALSE}  
+stri_stats_general(rawdata1)
+summary(details1)
+qplot(details1)
+```
+
+Here are the statistics and a historgram for the character and word counts per Twitter document:
+```{r, cache=FALSE, warning = FALSE, message=FALSE, echo=FALSE}
+stri_stats_general(rawdata2)
+summary(details2)
+qplot(details2)
+```
+... and here are the statistics and a historgram for the character and word counts per News document:
+```{r, cache=FALSE, warning = FALSE, message=FALSE, echo=FALSE}
+stri_stats_general(rawdata3)
+summary(details3)
+qplot(details3)
+```
+
+There are `r sum(wordTotal1)` words in the Blogs document, `r sum(wordTotal2)` words in the Twitter document, and `r sum(wordTotal3)` words in the News document.
+
+This assortment may well serve as a basis of current written text patterns, although it might be considered that the incorrect grammatical patterns found in typical online blog writing and tweets, combined with the fact that they provide the vast majority of the wordcount, could disproportionately affect the predictive value if someone with a non-texting-lingo writing style is having their input evaluated.
+
+###Project Plan
+The patterns in the sample data will be examined.  Triples, four-ples, and possibly higher order n-ples will be considered to see what word would be predicted next based on the past several words to have been entered.  The considerations of accuracy and complexity will be evaluated as well.  For example, looking at the past nine words might generate a next word prediction that is 99.9% accurate, but this would not be useful if it takes ten days to generate that prediction.
+
+The predicting calculations will be hosted on a server, and the user interface will be simultaneously generated along with the server executables by means of using the "Shiny" development environment.  The front end will work by the user pointing their browser to a URL and the user interface will consist of a web page on which the text that will be the basis of the prediction will be entered.  Upon hitting the 'submit' button, the server code will run, generating the predicted next word, which will then be delivered by means of the browser to the user on an updated version of that webpage.
